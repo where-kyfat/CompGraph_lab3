@@ -10,11 +10,18 @@ using System.Windows.Forms;
 
 namespace CompGraph_lab3
 {
-    public partial class Form1 : Form
+    public partial class FormEx1 : Form
     {
-        public Form1()
+        Form FormMain;
+        public FormEx1(Form formMain)
         {
             InitializeComponent();
+            FormMain = formMain;
+        }
+
+        private void FormEx1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            FormMain.Show();
         }
     }
 }
