@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace CompGraph_lab3
 {
     public partial class FormEx1 : Form
@@ -22,11 +23,11 @@ namespace CompGraph_lab3
         public FormEx1(Form formMain)
         {
             InitializeComponent();
-            g = CreateGraphics();
             FormMain = formMain;
             Bitmap pictureBoxImage = new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height);
             DrawingEmptyImage(pictureBoxImage);
             pictureBoxFloodingArea.Image = pictureBoxImage;
+            g = pictureBoxFloodingArea.CreateGraphics();
             StartImage = pictureBoxImage;
         }
         private void DrawingEmptyImage(Bitmap EmptyImage) {
@@ -54,18 +55,20 @@ namespace CompGraph_lab3
         {
             
         }
+   
         
 
-        void BrushArea(object sender, MouseEventArgs e)
+
+
+    void BrushArea(object sender, MouseEventArgs e)
         {
             
             Bitmap pixels = new Bitmap(pictureBoxFloodingArea.Image);
             if (isDown == false)
             {
                 
-                g.DrawLine(new Pen(Color.Black,4), prevLocation,new PointF(e.X, e.Y));
-                pictureBoxFloodingArea.Image = pixels;
-          
+                g.DrawLine(new Pen(Color.Black,1), prevLocation,prevLocation = new Point(e.X, e.Y));
+                //pictureBoxFloodingArea.Image = pixels;
             }
         }
 
