@@ -23,5 +23,35 @@ namespace CompGraph_lab3
         {
             FormMain.Show();
         }
+
+        private void Button_colorDialogEx1_Click(object sender, EventArgs e)
+        {
+            colorDialogEx1.ShowDialog();
+        }
+
+        private void PictureBoxFloodingArea_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void RadioButtonSelectedBrush_EnabledChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RadioButtonSelected_EnabledChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ButtonOpenFile_Click(object sender, EventArgs e)
+        {
+            openFileDialog.ShowDialog();
+        }
+
+        private void ComboBoxSelectedFile_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
