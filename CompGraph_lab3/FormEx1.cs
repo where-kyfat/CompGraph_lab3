@@ -15,7 +15,9 @@ namespace CompGraph_lab3
     {
         private Image StartImage;
         private Image FileImage = null;
+        private Dictionary<string, Image> DicOfSelectedFiles;
         private Point prevLocation;
+        private Color CorrectColor = Color.Black;
         bool isDown = true;
         Graphics g;
 
@@ -24,21 +26,25 @@ namespace CompGraph_lab3
         {
             InitializeComponent();
             FormMain = formMain;
-            Bitmap pictureBoxImage = new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height);
-            DrawingEmptyImage(pictureBoxImage);
-            pictureBoxFloodingArea.Image = pictureBoxImage;
+
+            pictureBoxFloodingArea.Image = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White); 
             g = pictureBoxFloodingArea.CreateGraphics();
-            StartImage = pictureBoxImage;
+            StartImage = pictureBoxFloodingArea.Image;
+            pictureBoxCorrectColor.Image = DrawingImageByColor(new Bitmap(pictureBoxCorrectColor.Width, pictureBoxCorrectColor.Height), CorrectColor);
+
+            DicOfSelectedFiles = new Dictionary<string, Image>();
+            DicOfSelectedFiles.Add("нет", null);
         }
-        private void DrawingEmptyImage(Bitmap EmptyImage) {
-            //Bitmap EmptyImage = new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height);
-            for (int x = 0; x < EmptyImage.Width; x++)
+        private Bitmap DrawingImageByColor(Image Image, Color color) {
+            Bitmap res = new Bitmap(Image);
+            for (int x = 0; x < res.Width; x++)
             {
-                for (int y = 0; y < EmptyImage.Height; y++)
+                for (int y = 0; y < res.Height; y++)
                 {
-                    EmptyImage.SetPixel(x, y, Color.FromArgb(255, 255, 255));
+                    res.SetPixel(x, y, color);
                 }
             }
+            return res;
         }
 
         private void FormEx1_FormClosing(object sender, FormClosingEventArgs e)
@@ -49,12 +55,17 @@ namespace CompGraph_lab3
         private void Button_colorDialogEx1_Click(object sender, EventArgs e)
         {
             colorDialogEx1.ShowDialog();
+            if (colorDialogEx1.Color != CorrectColor)
+            {
+                CorrectColor = colorDialogEx1.Color;
+                pictureBoxCorrectColor.Image = DrawingImageByColor(pictureBoxCorrectColor.Image, CorrectColor);
+            }
         }
 
         private void PictureBoxFloodingArea_MouseClick(object sender, MouseEventArgs e)
         {
-            Pen pen = new Pen(Color.Black);
-            SolidBrush solid = new SolidBrush(Color.Black);
+            Pen pen = new Pen(CorrectColor);
+            SolidBrush solid = new SolidBrush(CorrectColor);
             g.FillEllipse(solid, e.X, e.Y, 5, 5);
             g.DrawEllipse(pen, e.X, e.Y, 5, 5);
 
@@ -62,19 +73,12 @@ namespace CompGraph_lab3
             pen.Dispose();
         }
    
-        
-
-
 
         void BrushArea(object sender, MouseEventArgs e)
         {
-            
-            Bitmap pixels = new Bitmap(pictureBoxFloodingArea.Image);
-            if (isDown == false)
-            {
-                
-                g.DrawLine(new Pen(Color.Black,4), prevLocation,prevLocation = new Point(e.X, e.Y));
-                //pictureBoxFloodingArea.Image = pixels;
+            if (!isDown)
+            {  
+                g.DrawLine(new Pen(CorrectColor,4), prevLocation,prevLocation = new Point(e.X, e.Y));
             }
         }
 
@@ -98,7 +102,15 @@ namespace CompGraph_lab3
 
         private void ComboBoxSelectedFile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+            string selectedValue = comboBoxSelectedFile.SelectedItem.ToString();
+            if (selectedValue == "нет")
+            {
+                FileImage = null;
+            }
+            else
+            {
+                FileImage = DicOfSelectedFiles[selectedValue];
+            }
         }
 
         private void PictureBoxFloodingArea_MouseDown(object sender, MouseEventArgs e)
@@ -136,6 +148,9 @@ namespace CompGraph_lab3
                 System.IO.FileInfo fileInfo = new System.IO.FileInfo(openFileDialog.FileName);
                 System.IO.FileStream fileStream = fileInfo.OpenRead();
                 FileImage = Image.FromStream(fileStream);
+                int index = comboBoxSelectedFile.Items.Add(openFileDialog.FileName.Split('\\').Last());
+                DicOfSelectedFiles.Add(comboBoxSelectedFile.Items[index].ToString(), FileImage);
+                comboBoxSelectedFile.SelectedIndex = index;
             }
             catch (Exception exp)
             {

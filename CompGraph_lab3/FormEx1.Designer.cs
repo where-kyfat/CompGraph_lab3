@@ -157,6 +157,7 @@
             this.Controls.Add(this.button_colorDialogEx1);
             this.Controls.Add(this.pictureBoxFloodingArea);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "FormEx1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CompGraph_lab3.Ex1";
