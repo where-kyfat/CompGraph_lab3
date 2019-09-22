@@ -15,7 +15,7 @@ namespace CompGraph_lab3
     {
         private Image StartImage;
         private Point prevLocation;
-        bool isDown = false;
+        bool isDown = true;
         Graphics g;
 
         Form FormMain;
@@ -53,21 +53,27 @@ namespace CompGraph_lab3
 
         private void PictureBoxFloodingArea_MouseClick(object sender, MouseEventArgs e)
         {
-            
+            Pen pen = new Pen(Color.Black);
+            SolidBrush solid = new SolidBrush(Color.Black);
+            g.FillEllipse(solid, e.X, e.Y, 5, 5);
+            g.DrawEllipse(pen, e.X, e.Y, 5, 5);
+
+            solid.Dispose();
+            pen.Dispose();
         }
    
         
 
 
 
-    void BrushArea(object sender, MouseEventArgs e)
+        void BrushArea(object sender, MouseEventArgs e)
         {
             
             Bitmap pixels = new Bitmap(pictureBoxFloodingArea.Image);
             if (isDown == false)
             {
                 
-                g.DrawLine(new Pen(Color.Black,1), prevLocation,prevLocation = new Point(e.X, e.Y));
+                g.DrawLine(new Pen(Color.Black,4), prevLocation,prevLocation = new Point(e.X, e.Y));
                 //pictureBoxFloodingArea.Image = pixels;
             }
         }
@@ -93,11 +99,6 @@ namespace CompGraph_lab3
         }
 
         private void ComboBoxSelectedFile_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void PictureBoxFloodingArea_Click(object sender, EventArgs e)
         {
 
         }
