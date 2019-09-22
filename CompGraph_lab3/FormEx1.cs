@@ -14,10 +14,12 @@ namespace CompGraph_lab3
     public partial class FormEx1 : Form
     {
         private Image StartImage;
+        private Image CorrectImage;
         private Bitmap FileImage = null;
         private Dictionary<string, Image> DicOfSelectedFiles;
         private Point prevLocation;
         private Color CorrectColor = Color.Black;
+        private Color ColorInXY;
         bool isDown = true;
         Graphics g;
 
@@ -28,8 +30,9 @@ namespace CompGraph_lab3
             FormMain = formMain;
 
             pictureBoxFloodingArea.Image = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White); 
-            g = pictureBoxFloodingArea.CreateGraphics();
-            StartImage = pictureBoxFloodingArea.Image;
+            g = Graphics.FromImage(pictureBoxFloodingArea.Image);
+            StartImage = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White);
+            CorrectImage = pictureBoxFloodingArea.Image;
             pictureBoxCorrectColor.Image = DrawingImageByColor(new Bitmap(pictureBoxCorrectColor.Width, pictureBoxCorrectColor.Height), CorrectColor);
 
             DicOfSelectedFiles = new Dictionary<string, Image>();
@@ -83,7 +86,8 @@ namespace CompGraph_lab3
         {
             if (!isDown)
             {  
-                g.DrawLine(new Pen(CorrectColor,4), prevLocation,prevLocation = new Point(e.X, e.Y));
+                g.DrawLine(new Pen(CorrectColor, 8), prevLocation,prevLocation = new Point(e.X, e.Y));
+                pictureBoxFloodingArea.Image = CorrectImage;
             }
         }
 
@@ -95,7 +99,47 @@ namespace CompGraph_lab3
             }
             else
             {
+                Bitmap FloodingImage = new Bitmap(pictureBoxFloodingArea.Image);
+                pictureBoxFloodingArea.DrawToBitmap(FloodingImage, pictureBoxFloodingArea.ClientRectangle);
+                Point centerPix = new Point(e.X, e.Y);
+                ColorInXY = FloodingImage.GetPixel(centerPix.X, centerPix.Y);
+                Point selectedPix = new Point(e.X, e.Y);
+                while (selectedPix.Y < FloodingImage.Height &&FloodingImage.GetPixel(selectedPix.X, selectedPix.Y) == ColorInXY)
+                {
+                    RecurAreaL(FloodingImage, selectedPix.X, selectedPix.Y);
+                    RecurAreaR(FloodingImage, selectedPix.X + 1, selectedPix.Y);
+                    selectedPix.Y += 1;
+                }
 
+                selectedPix = centerPix;
+                selectedPix.Y -= 1;
+                while (selectedPix.Y > 0 && FloodingImage.GetPixel(selectedPix.X, selectedPix.Y) == ColorInXY)
+                {
+                    RecurAreaL(FloodingImage, selectedPix.X, selectedPix.Y);
+                    RecurAreaR(FloodingImage, selectedPix.X + 1, selectedPix.Y);
+                    selectedPix.Y -= 1;
+                }
+                pictureBoxFloodingArea.Image = FloodingImage;
+                g = Graphics.FromImage(pictureBoxFloodingArea.Image);
+                CorrectImage = pictureBoxFloodingArea.Image;
+            }
+        }
+
+        void RecurAreaL(Bitmap image, int x, int y)
+        {
+            if (x > 0 && image.GetPixel(x, y) == ColorInXY)
+            {
+                image.SetPixel(x, y, CorrectColor);
+                RecurAreaL(image, x - 1, y);
+            }
+        }
+
+        void RecurAreaR(Bitmap image, int x, int y)
+        {
+            if (x < image.Width && image.GetPixel(x, y) == ColorInXY)
+            {
+                image.SetPixel(x, y, CorrectColor);
+                RecurAreaR(image, x + 1, y);
             }
         }
 
@@ -141,7 +185,10 @@ namespace CompGraph_lab3
 
         private void ButtonReset_Click(object sender, EventArgs e)
         {
-            pictureBoxFloodingArea.Image = StartImage;
+            pictureBoxFloodingArea.Image = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White);
+            //g.Dispose();
+            g = Graphics.FromImage(pictureBoxFloodingArea.Image);
+            CorrectImage = pictureBoxFloodingArea.Image;
         }
 
         private void OpenFileDialog_FileOk(object sender, CancelEventArgs e)
