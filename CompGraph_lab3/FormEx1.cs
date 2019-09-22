@@ -14,7 +14,7 @@ namespace CompGraph_lab3
     public partial class FormEx1 : Form
     {
         private Image StartImage;
-        private Image FileImage = null;
+        private Bitmap FileImage = null;
         private Dictionary<string, Image> DicOfSelectedFiles;
         private Point prevLocation;
         private Color CorrectColor = Color.Black;
@@ -64,13 +64,18 @@ namespace CompGraph_lab3
 
         private void PictureBoxFloodingArea_MouseClick(object sender, MouseEventArgs e)
         {
-            Pen pen = new Pen(CorrectColor);
-            SolidBrush solid = new SolidBrush(CorrectColor);
-            g.FillEllipse(solid, e.X, e.Y, 5, 5);
-            g.DrawEllipse(pen, e.X, e.Y, 5, 5);
+            if (radioButtonSelectedBrush.Checked)
+            {
+                Pen pen = new Pen(CorrectColor);
+                SolidBrush solid = new SolidBrush(CorrectColor);
+                g.FillEllipse(solid, e.X, e.Y, 5, 5);
+                g.DrawEllipse(pen, e.X, e.Y, 5, 5);
 
-            solid.Dispose();
-            pen.Dispose();
+                solid.Dispose();
+                pen.Dispose();
+            }
+            else if(radioButtonSelectedFlood.Checked)
+                FloodArea(sender, e);
         }
    
 
@@ -109,7 +114,7 @@ namespace CompGraph_lab3
             }
             else
             {
-                FileImage = DicOfSelectedFiles[selectedValue];
+                FileImage = new Bitmap(DicOfSelectedFiles[selectedValue]);
             }
         }
 
@@ -132,8 +137,6 @@ namespace CompGraph_lab3
             {
                 BrushArea(sender, e);
             }
-            else
-                FloodArea(sender, e);
         }
 
         private void ButtonReset_Click(object sender, EventArgs e)
@@ -147,7 +150,7 @@ namespace CompGraph_lab3
             {
                 System.IO.FileInfo fileInfo = new System.IO.FileInfo(openFileDialog.FileName);
                 System.IO.FileStream fileStream = fileInfo.OpenRead();
-                FileImage = Image.FromStream(fileStream);
+                FileImage = new Bitmap(Image.FromStream(fileStream));
                 int index = comboBoxSelectedFile.Items.Add(openFileDialog.FileName.Split('\\').Last());
                 DicOfSelectedFiles.Add(comboBoxSelectedFile.Items[index].ToString(), FileImage);
                 comboBoxSelectedFile.SelectedIndex = index;
