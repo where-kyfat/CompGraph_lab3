@@ -13,7 +13,7 @@ namespace CompGraph_lab3
 {
     public partial class FormEx1 : Form
     {
-        private Image StartImage;
+        //private Image StartImage;
         private Image CorrectImage;
         private Bitmap FileImage = null;
         private Dictionary<string, Image> DicOfSelectedFiles;
@@ -29,10 +29,10 @@ namespace CompGraph_lab3
             InitializeComponent();
             FormMain = formMain;
 
-            pictureBoxFloodingArea.Image = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White); 
-            g = Graphics.FromImage(pictureBoxFloodingArea.Image);
-            StartImage = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White);
-            CorrectImage = pictureBoxFloodingArea.Image;
+            CorrectImage = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White); 
+            g = Graphics.FromImage(CorrectImage);
+
+            pictureBoxFloodingArea.Image = CorrectImage;
             pictureBoxCorrectColor.Image = DrawingImageByColor(new Bitmap(pictureBoxCorrectColor.Width, pictureBoxCorrectColor.Height), CorrectColor);
 
             DicOfSelectedFiles = new Dictionary<string, Image>();
@@ -85,7 +85,13 @@ namespace CompGraph_lab3
         void BrushArea(object sender, MouseEventArgs e)
         {
             if (!isDown)
-            {  
+            {
+                if (g != null)
+                {
+                    g.Dispose();
+                }
+                g = Graphics.FromImage(CorrectImage);
+
                 g.DrawLine(new Pen(CorrectColor, 8), prevLocation,prevLocation = new Point(e.X, e.Y));
                 pictureBoxFloodingArea.Image = CorrectImage;
             }
@@ -99,47 +105,90 @@ namespace CompGraph_lab3
             }
             else
             {
-                Bitmap FloodingImage = new Bitmap(pictureBoxFloodingArea.Image);
+                Bitmap FloodingImage = (Bitmap)CorrectImage;
                 pictureBoxFloodingArea.DrawToBitmap(FloodingImage, pictureBoxFloodingArea.ClientRectangle);
+
+                if (g != null)
+                {
+                    g.Dispose();
+                }
+                g = Graphics.FromImage(FloodingImage);
+
                 Point centerPix = new Point(e.X, e.Y);
                 ColorInXY = FloodingImage.GetPixel(centerPix.X, centerPix.Y);
                 Point selectedPix = new Point(e.X, e.Y);
-                while (selectedPix.Y < FloodingImage.Height &&FloodingImage.GetPixel(selectedPix.X, selectedPix.Y) == ColorInXY)
-                {
-                    RecurAreaL(FloodingImage, selectedPix.X, selectedPix.Y);
-                    RecurAreaR(FloodingImage, selectedPix.X + 1, selectedPix.Y);
-                    selectedPix.Y += 1;
-                }
 
-                selectedPix = centerPix;
-                selectedPix.Y -= 1;
-                while (selectedPix.Y > 0 && FloodingImage.GetPixel(selectedPix.X, selectedPix.Y) == ColorInXY)
+                if (ColorInXY.ToArgb() != CorrectColor.ToArgb())
                 {
-                    RecurAreaL(FloodingImage, selectedPix.X, selectedPix.Y);
-                    RecurAreaR(FloodingImage, selectedPix.X + 1, selectedPix.Y);
-                    selectedPix.Y -= 1;
+                    RecurAreaDown(FloodingImage, selectedPix.X, selectedPix.Y, ColorInXY);
+                    if (selectedPix.Y > 0)
+                    {
+                        RecurAreaUp(FloodingImage, selectedPix.X, selectedPix.Y - 1, ColorInXY);
+                    }
                 }
-                pictureBoxFloodingArea.Image = FloodingImage;
-                g = Graphics.FromImage(pictureBoxFloodingArea.Image);
-                CorrectImage = pictureBoxFloodingArea.Image;
+                
+
+                CorrectImage = FloodingImage;
+                pictureBoxFloodingArea.Image = CorrectImage;
             }
         }
 
-        void RecurAreaL(Bitmap image, int x, int y)
+        void RecurAreaDown(Bitmap image, int x, int y, Color ColorInXY)
         {
-            if (x > 0 && image.GetPixel(x, y) == ColorInXY)
+            if (y > 1 && image.GetPixel(x, y) == ColorInXY)
             {
-                image.SetPixel(x, y, CorrectColor);
-                RecurAreaL(image, x - 1, y);
+                Point LeftWall = RecurAreaL(image, x, y, ColorInXY);
+                Point RightWall = RecurAreaR(image, x, y, ColorInXY);
+                g.DrawLine(new Pen(CorrectColor), LeftWall, RightWall);
+
+                for (int i = LeftWall.X; i < RightWall.X; i++)
+                {
+                    RecurAreaDown(image, i, y - 1, ColorInXY);
+                    RecurAreaUp(image, i, y + 1, ColorInXY);
+                }
+                
             }
         }
 
-        void RecurAreaR(Bitmap image, int x, int y)
+        void RecurAreaUp(Bitmap image, int x, int y, Color ColorInXY)
         {
-            if (x < image.Width && image.GetPixel(x, y) == ColorInXY)
+            if (y > 0 && y < image.Height - 1 && image.GetPixel(x, y) == ColorInXY)
             {
-                image.SetPixel(x, y, CorrectColor);
-                RecurAreaR(image, x + 1, y);
+                Point LeftWall = RecurAreaL(image, x, y, ColorInXY);
+                Point RightWall = RecurAreaR(image, x, y, ColorInXY);
+                g.DrawLine(new Pen(CorrectColor), LeftWall, RightWall);
+
+                for (int i = LeftWall.X; i < RightWall.X; i++)
+                {
+                    RecurAreaDown(image, i, y + 1, ColorInXY);
+                    RecurAreaUp(image, i, y - 1, ColorInXY);
+                }
+            }
+        }
+
+        Point RecurAreaL(Bitmap image, int x, int y, Color ColorInXY)
+        {
+            if (x > 1 && image.GetPixel(x, y) == ColorInXY)
+            {
+                //image.SetPixel(x, y, CorrectColor);
+                return RecurAreaL(image, x - 1, y, ColorInXY);
+            }
+            else
+            {
+                return new Point(x + 1, y);
+            }
+        }
+
+        Point RecurAreaR(Bitmap image, int x, int y, Color ColorInXY)
+        {
+            if (x < image.Width - 1 && image.GetPixel(x, y) == ColorInXY)
+            {
+                //image.SetPixel(x, y, CorrectColor);
+                return RecurAreaR(image, x + 1, y, ColorInXY);
+            }
+            else
+            {
+                return new Point(x - 1, y);
             }
         }
 
@@ -185,10 +234,17 @@ namespace CompGraph_lab3
 
         private void ButtonReset_Click(object sender, EventArgs e)
         {
-            pictureBoxFloodingArea.Image = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White);
-            //g.Dispose();
-            g = Graphics.FromImage(pictureBoxFloodingArea.Image);
-            CorrectImage = pictureBoxFloodingArea.Image;
+            if (CorrectImage != null)
+            {
+                CorrectImage.Dispose();
+            }
+            CorrectImage = DrawingImageByColor(new Bitmap(pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height), Color.White);
+            if (g != null)
+            {
+                g.Dispose();
+            }
+            g = Graphics.FromImage(CorrectImage);
+            pictureBoxFloodingArea.Image = CorrectImage;
         }
 
         private void OpenFileDialog_FileOk(object sender, CancelEventArgs e)
