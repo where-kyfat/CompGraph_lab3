@@ -14,12 +14,12 @@ namespace CompGraph_lab3
     public partial class FormEx1 : Form
     {
         private Image StartImage;
+        private Image FileImage = null;
         private Point prevLocation;
         bool isDown = true;
         Graphics g;
 
         Form FormMain;
-        short SelectedTypeOfPainting = 0;
         public FormEx1(Form formMain)
         {
             InitializeComponent();
@@ -80,18 +80,16 @@ namespace CompGraph_lab3
 
         void FloodArea(object sender, MouseEventArgs e)
         {
+            if (FileImage != null)
+            {
 
+            }
+            else
+            {
+
+            }
         }
 
-        private void RadioButtonSelectedBrush_EnabledChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void RadioButtonSelected_EnabledChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void ButtonOpenFile_Click(object sender, EventArgs e)
         {
@@ -100,7 +98,7 @@ namespace CompGraph_lab3
 
         private void ComboBoxSelectedFile_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            
         }
 
         private void PictureBoxFloodingArea_MouseDown(object sender, MouseEventArgs e)
@@ -118,12 +116,31 @@ namespace CompGraph_lab3
 
         private void PictureBoxFloodingArea_MouseMove(object sender, MouseEventArgs e)
         {
-            if (SelectedTypeOfPainting == 0)
+            if (radioButtonSelectedBrush.Checked)
             {
                 BrushArea(sender, e);
             }
             else
                 FloodArea(sender, e);
+        }
+
+        private void ButtonReset_Click(object sender, EventArgs e)
+        {
+            pictureBoxFloodingArea.Image = StartImage;
+        }
+
+        private void OpenFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                System.IO.FileInfo fileInfo = new System.IO.FileInfo(openFileDialog.FileName);
+                System.IO.FileStream fileStream = fileInfo.OpenRead();
+                FileImage = Image.FromStream(fileStream);
+            }
+            catch (Exception exp)
+            {
+                MessageBox.Show(exp.Message,"");
+            }
         }
     }
 }

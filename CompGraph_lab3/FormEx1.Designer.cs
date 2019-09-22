@@ -38,6 +38,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.buttonOpenFile = new System.Windows.Forms.Button();
             this.comboBoxSelectedFile = new System.Windows.Forms.ComboBox();
+            this.buttonReset = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxFloodingArea)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxCorrectColor)).BeginInit();
             this.SuspendLayout();
@@ -92,7 +93,6 @@
             this.radioButtonSelectedBrush.TabStop = true;
             this.radioButtonSelectedBrush.Text = "Кисть";
             this.radioButtonSelectedBrush.UseVisualStyleBackColor = true;
-            this.radioButtonSelectedBrush.EnabledChanged += new System.EventHandler(this.RadioButtonSelectedBrush_EnabledChanged);
             // 
             // radioButtonSelectedFlood
             // 
@@ -104,11 +104,11 @@
             this.radioButtonSelectedFlood.TabStop = true;
             this.radioButtonSelectedFlood.Text = "Заливка";
             this.radioButtonSelectedFlood.UseVisualStyleBackColor = true;
-            this.radioButtonSelectedFlood.EnabledChanged += new System.EventHandler(this.RadioButtonSelected_EnabledChanged);
             // 
             // openFileDialog
             // 
             this.openFileDialog.FileName = "openFileDialog1";
+            this.openFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialog_FileOk);
             // 
             // buttonOpenFile
             // 
@@ -132,11 +132,22 @@
             this.comboBoxSelectedFile.Text = "нет";
             this.comboBoxSelectedFile.SelectedIndexChanged += new System.EventHandler(this.ComboBoxSelectedFile_SelectedIndexChanged);
             // 
+            // buttonReset
+            // 
+            this.buttonReset.Location = new System.Drawing.Point(207, 380);
+            this.buttonReset.Name = "buttonReset";
+            this.buttonReset.Size = new System.Drawing.Size(75, 23);
+            this.buttonReset.TabIndex = 8;
+            this.buttonReset.Text = "Очистить";
+            this.buttonReset.UseVisualStyleBackColor = true;
+            this.buttonReset.Click += new System.EventHandler(this.ButtonReset_Click);
+            // 
             // FormEx1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(882, 507);
+            this.Controls.Add(this.buttonReset);
             this.Controls.Add(this.comboBoxSelectedFile);
             this.Controls.Add(this.buttonOpenFile);
             this.Controls.Add(this.radioButtonSelectedFlood);
@@ -169,5 +180,6 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.Button buttonOpenFile;
         private System.Windows.Forms.ComboBox comboBoxSelectedFile;
+        private System.Windows.Forms.Button buttonReset;
     }
 }
