@@ -13,7 +13,6 @@ namespace CompGraph_lab3
 {
     public partial class FormEx1 : Form
     {
-        //private Image StartImage;
         private Image CorrectImage;
         private Bitmap FileImage = null;
         private Dictionary<string, Image> DicOfSelectedFiles;
@@ -170,7 +169,6 @@ namespace CompGraph_lab3
         {
             if (x > 1 && image.GetPixel(x, y) == ColorInXY)
             {
-                //image.SetPixel(x, y, CorrectColor);
                 return RecurAreaL(image, x - 1, y, ColorInXY);
             }
             else
@@ -183,7 +181,6 @@ namespace CompGraph_lab3
         {
             if (x < image.Width - 1 && image.GetPixel(x, y) == ColorInXY)
             {
-                //image.SetPixel(x, y, CorrectColor);
                 return RecurAreaR(image, x + 1, y, ColorInXY);
             }
             else
