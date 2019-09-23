@@ -66,17 +66,18 @@ namespace CompGraph_lab3
 
         private void PictureBoxFloodingArea_MouseClick(object sender, MouseEventArgs e)
         {
-            if (radioButtonSelectedBrush.Checked)
+            if (radioButtonSelectedBrush.Checked && e.Clicks == 1)
             {
                 Pen pen = new Pen(CorrectColor);
                 SolidBrush solid = new SolidBrush(CorrectColor);
                 g.FillEllipse(solid, e.X, e.Y, 5, 5);
                 g.DrawEllipse(pen, e.X, e.Y, 5, 5);
+				pictureBoxFloodingArea.Refresh();
 
                 solid.Dispose();
                 pen.Dispose();
             }
-            else if(radioButtonSelectedFlood.Checked)
+            else if(radioButtonSelectedFlood.Checked && e.Clicks == 1)
                 FloodArea(sender, e);
         }
    
@@ -91,7 +92,7 @@ namespace CompGraph_lab3
                 }
                 g = Graphics.FromImage(CorrectImage);
 
-                g.DrawLine(new Pen(CorrectColor, 8), prevLocation,prevLocation = new Point(e.X, e.Y));
+                g.DrawLine(new Pen(CorrectColor, 4), prevLocation,prevLocation = new Point(e.X, e.Y));
                 pictureBoxFloodingArea.Image = CorrectImage;
             }
         }
@@ -100,8 +101,35 @@ namespace CompGraph_lab3
         {
             if (FileImage != null)
             {
+				FileImage = new Bitmap(FileImage, pictureBoxFloodingArea.Width, pictureBoxFloodingArea.Height);
+				Bitmap FloodingImage = (Bitmap)CorrectImage;
+				
 
-            }
+				//pictureBoxFloodingArea.DrawToBitmap(FloodingImage, pictureBoxFloodingArea.ClientRectangle);
+
+				if (g != null)
+				{
+					g.Dispose();
+				}
+				g = Graphics.FromImage(FloodingImage);
+
+				Point centerPix = new Point(e.X, e.Y);
+				ColorInXY = ((Bitmap)pictureBoxFloodingArea.Image).GetPixel(e.X, e.Y); /*FloodingImage.GetPixel(centerPix.X, centerPix.Y)*/;
+				Point selectedPix = new Point(e.X, e.Y);
+
+				if (ColorInXY.ToArgb() != CorrectColor.ToArgb())
+				{
+					RecurAreaDownFileImage(FloodingImage, selectedPix.X, selectedPix.Y, ColorInXY);
+					if (selectedPix.Y > 0)
+					{
+						RecurAreaUpFileImage(FloodingImage, selectedPix.X, selectedPix.Y - 1, ColorInXY);
+					}
+				}
+
+
+				CorrectImage = FloodingImage;
+				pictureBoxFloodingArea.Image = CorrectImage;
+			}
             else
             {
                 Bitmap FloodingImage = (Bitmap)CorrectImage;
@@ -132,7 +160,70 @@ namespace CompGraph_lab3
             }
         }
 
-        void RecurAreaDown(Bitmap image, int x, int y, Color ColorInXY)
+		Color correctColor( int x, int y)
+		{
+			return FileImage.GetPixel(x, y);
+		}
+
+
+		void RecurAreaDownFileImage(Bitmap image, int x, int y, Color ColorInXY)
+		{
+			if (y > 1 && image.GetPixel(x, y) == ColorInXY && image.GetPixel(x, y) != correctColor(x, y))
+			{
+				Point LeftWall = RecurAreaLFileImage(image, x, y, ColorInXY);
+				Point RightWall = RecurAreaRFileImage(image, x + 1, y, ColorInXY);
+
+				for (int i = LeftWall.X; i < RightWall.X; i++)
+				{
+					RecurAreaDownFileImage(image, i, y - 1, ColorInXY);
+					RecurAreaUpFileImage(image, i, y + 1, ColorInXY);
+				}
+
+			}
+		}
+
+		void RecurAreaUpFileImage(Bitmap image, int x, int y, Color ColorInXY)
+		{
+			if (y > 0 && y < image.Height - 1 && image.GetPixel(x, y) == ColorInXY && image.GetPixel(x, y) != correctColor(x, y))
+			{
+				Point LeftWall = RecurAreaLFileImage (image, x, y, ColorInXY);
+				Point RightWall = RecurAreaRFileImage(image, x + 1, y, ColorInXY);
+
+				for (int i = LeftWall.X; i < RightWall.X; i++)
+				{
+					RecurAreaDownFileImage(image, i, y + 1, ColorInXY);
+					RecurAreaUpFileImage(image, i, y - 1, ColorInXY);
+				}
+			}
+		}
+
+		Point RecurAreaLFileImage(Bitmap image, int x, int y, Color ColorInXY)
+		{
+			if (x > 1 && image.GetPixel(x, y) == ColorInXY && image.GetPixel(x, y) != correctColor(x, y))
+			{
+				image.SetPixel(x, y, correctColor(x, y));
+				return RecurAreaLFileImage(image, x - 1, y, ColorInXY);
+			}
+			else
+			{
+				return new Point(x + 1, y);
+			}
+		}
+
+		Point RecurAreaRFileImage(Bitmap image, int x, int y, Color ColorInXY)
+		{
+			if (x < image.Width - 1 && image.GetPixel(x, y) == ColorInXY && image.GetPixel(x, y) != correctColor(x, y))
+			{
+				image.SetPixel(x, y, correctColor(x, y));
+				return RecurAreaRFileImage(image, x + 1, y, ColorInXY);
+			}
+			else
+			{
+				return new Point(x - 1, y);
+			}
+		}
+
+		void RecurAreaDown(Bitmap image, int x, int y, Color ColorInXY)
         {
             if (y > 1 && image.GetPixel(x, y) == ColorInXY)
             {
