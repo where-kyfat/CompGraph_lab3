@@ -19,6 +19,7 @@ namespace CompGraph_lab3
         private Point prevLocation;
         private Color CorrectColor = Color.Black;
         private Color ColorInXY;
+        Point centerPix;
         bool isDown = true;
         Graphics g;
 
@@ -113,11 +114,13 @@ namespace CompGraph_lab3
 				}
 				g = Graphics.FromImage(FloodingImage);
 
-				Point centerPix = new Point(e.X, e.Y);
+				centerPix = new Point(e.X, e.Y);
 				ColorInXY = ((Bitmap)pictureBoxFloodingArea.Image).GetPixel(e.X, e.Y); /*FloodingImage.GetPixel(centerPix.X, centerPix.Y)*/;
 				Point selectedPix = new Point(e.X, e.Y);
+                dopX = 0;
+                dopY = 0;
 
-				if (ColorInXY.ToArgb() != CorrectColor.ToArgb())
+                if (ColorInXY.ToArgb() != correctColor(e.X, e.Y).ToArgb())
 				{
 					RecurAreaDownFileImage(FloodingImage, selectedPix.X, selectedPix.Y, ColorInXY);
 					if (selectedPix.Y > 0)
@@ -141,7 +144,7 @@ namespace CompGraph_lab3
                 }
                 g = Graphics.FromImage(FloodingImage);
 
-                Point centerPix = new Point(e.X, e.Y);
+                centerPix = new Point(e.X, e.Y);
                 ColorInXY = FloodingImage.GetPixel(centerPix.X, centerPix.Y);
                 Point selectedPix = new Point(e.X, e.Y);
 
@@ -160,10 +163,15 @@ namespace CompGraph_lab3
             }
         }
 
-		Color correctColor( int x, int y)
+        int dopX = 0;
+        int dopY = 0;
+		Color correctColor(int x, int y)
 		{
-			return FileImage.GetPixel(x, y);
-		}
+            int Xpreob = (x + FileImage.Width / 2 - centerPix.X) >= 0 ? (x + FileImage.Width / 2 - centerPix.X) % FileImage.Width : FileImage.Width + x + FileImage.Width / 2 - centerPix.X;
+            int Ypreob = (y + FileImage.Height / 2 - centerPix.Y) >= 0 ? (y + FileImage.Height / 2 - centerPix.Y) % FileImage.Height : FileImage.Height + y + FileImage.Height / 2 - centerPix.Y;
+            
+            return FileImage.GetPixel(Xpreob, Ypreob);
+        }
 
 
 		void RecurAreaDownFileImage(Bitmap image, int x, int y, Color ColorInXY)
